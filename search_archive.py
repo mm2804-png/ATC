@@ -1,36 +1,77 @@
-"""
-search_archive.py — Search LiveATC archives for a flight over a time window.
+name: Search ATC Archive
 
-Given a date and time range, this downloads each 30-minute archive block from
-archive.liveatc.net, transcribes it with Whisper, searches for the callsign
-(e.g. "Sky Flite two zero three"), and writes the results to docs/index.html
-so GitHub Pages can display them.
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date to search (YYYY-MM-DD)"
+        required: true
+      start_time:
+        description: "Start time, 24-hour (HH:MM)"
+        required: true
+        default: "14:00"
+      end_time:
+        description: "End time, 24-hour (HH:MM)"
+        required: true
+        default: "16:00"
+      timezone:
+        description: "Timezone of those times"
+        type: choice
+        options: [eastern, utc]
+        default: eastern
+      flight_number:
+        description: "Flight number (digits only)"
+        required: true
+        default: "203"
+      telephony:
+        description: "Spoken callsign"
+        required: true
+        default: "sky flite"
+      model:
+        description: "Whisper model (medium = slower, more accurate)"
+        type: choice
+        options: [tiny, base, small, medium]
+        default: small
+      archive_pattern:
+        description: "Archive URL pattern (see README to set this once)"
+        required: true
+        default: "https://archive.liveatc.net/kvrb/KVRB-Twr-{mon}-{dd}-{yyyy}-{hhmm}Z.mp3"
 
-Normally run by the GitHub Actions workflow, but works locally too:
+permissions:
+  contents: write
 
-    python search_archive.py --date 2026-09-08 --start 14:00 --end 16:00 \
-        --tz eastern --flight 203 --telephony "sky flite"
-"""
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
 
-import argparse
-import datetime as dt
-import html
-import re
-import sys
-import tempfile
-from pathlib import Path
-from zoneinfo import ZoneInfo
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-import requests
+      - name: Install dependencies
+        run: pip install faster-whisper requests
 
-EASTERN = ZoneInfo("America/New_York")
-UTC = ZoneInfo("UTC")
+      - name: Run the search
+        run: >
+          python search_archive.py
+          --date "${{ inputs.date }}"
+          --start "${{ inputs.start_time }}"
+          --end "${{ inputs.end_time }}"
+          --tz "${{ inputs.timezone }}"
+          --flight "${{ inputs.flight_number }}"
+          --telephony "${{ inputs.telephony }}"
+          --model "${{ inputs.model }}"
+          --pattern "${{ inputs.archive_pattern }}"
 
-# ---------------------------------------------------------------------------
-# Callsign matching
-# ---------------------------------------------------------------------------
-DIGIT_WORDS = {
-    "0": ["zero", "oh", "o", "0"],
-    "1": ["one", "won", "1"],
-    "2": ["two", "to", "too", "2"],
-    "
+      - name: Publish results to the website
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Search results: ${{ inputs.date }} ${{ inputs.start_time }}-${{ inputs.end_time }}" || echo "Nothing new to publish"
+          git push
