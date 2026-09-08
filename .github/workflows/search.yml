@@ -1,0 +1,77 @@
+name: Search ATC Archive
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date to search (YYYY-MM-DD)"
+        required: true
+      start_time:
+        description: "Start time, 24-hour (HH:MM)"
+        required: true
+        default: "14:00"
+      end_time:
+        description: "End time, 24-hour (HH:MM)"
+        required: true
+        default: "16:00"
+      timezone:
+        description: "Timezone of those times"
+        type: choice
+        options: [eastern, utc]
+        default: eastern
+      flight_number:
+        description: "Flight number (digits only)"
+        required: true
+        default: "203"
+      telephony:
+        description: "Spoken callsign"
+        required: true
+        default: "sky flite"
+      model:
+        description: "Whisper model (medium = slower, more accurate)"
+        type: choice
+        options: [tiny, base, small, medium]
+        default: small
+      archive_pattern:
+        description: "Archive URL pattern (see README to set this once)"
+        required: true
+        default: "https://archive.liveatc.net/kvrb/KVRB-Twr-{mon}-{dd}-{yyyy}-{hhmm}Z.mp3"
+
+permissions:
+  contents: write
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install faster-whisper requests
+
+      - name: Run the search
+        run: >
+          python search_archive.py
+          --date "${{ inputs.date }}"
+          --start "${{ inputs.start_time }}"
+          --end "${{ inputs.end_time }}"
+          --tz "${{ inputs.timezone }}"
+          --flight "${{ inputs.flight_number }}"
+          --telephony "${{ inputs.telephony }}"
+          --model "${{ inputs.model }}"
+          --pattern "${{ inputs.archive_pattern }}"
+
+      - name: Publish results to the website
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Search results: ${{ inputs.date }} ${{ inputs.start_time }}-${{ inputs.end_time }}" || echo "Nothing new to publish"
+          git push
