@@ -2,15 +2,50 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ATC archive search</title>
+<title>ATC search — Sky Flite 203</title>
 <style>
-body { background:#cfd6dc; color:#17222b; font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
-       max-width:760px; margin:0 auto; padding:48px 16px; }
-h1 { font-size:1.35rem; }
-p { color:#5c6b76; margin-top:10px; line-height:1.5; }
+:root {
+  --board: #cfd6dc; --ink: #17222b; --dim: #5c6b76;
+  --hit: #e4572e; --maybe: #8195a3; --strip: #f8f9fa;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--board); color: var(--ink);
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  padding: 24px 16px 64px; max-width: 760px; margin: 0 auto;
+}
+header { margin-bottom: 28px; }
+h1 { font-size: 1.35rem; font-weight: 700; }
+.callsign { color: var(--hit); }
+.params { color: var(--dim); font-size: .9rem; margin-top: 6px; line-height: 1.5; }
+h2 { font-size: .95rem; font-weight: 600; margin: 26px 0 10px; color: var(--dim); }
+.strip {
+  background: var(--strip); border-left: 6px solid var(--hit);
+  padding: 10px 14px; margin-bottom: 8px; border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(23,34,43,.18);
+}
+.strip.maybe { border-left-color: var(--maybe); }
+.strip .when {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: .82rem; color: var(--dim); margin-bottom: 4px;
+}
+.strip .heard { font-size: .95rem; line-height: 1.45; }
+.empty { color: var(--dim); font-style: italic; padding: 8px 0; }
+.blocks { font-size: .85rem; color: var(--dim); line-height: 1.7; }
+.blocks a { color: var(--ink); }
+footer { margin-top: 40px; font-size: .8rem; color: var(--dim); }
 </style>
 </head><body>
-<h1>No searches yet</h1>
-<p>Run the "Search ATC Archive" workflow from this repo's Actions tab.
-When it finishes, this page becomes your results page.</p>
+<header>
+  <h1>Heard on frequency: <span class="callsign">Sky Flite 203</span></h1>
+  <div class="params">Sunday, September 06, 2026, 16:00–17:00 Eastern<br>
+  Feed pattern: https://archive.liveatc.net/kvrb/KVRB-Tower-{mon}-{dd}-{yyyy}-{hhmm}Z.mp3</div>
+</header>
+<h2>Confirmed mentions</h2>
+<p class="empty">No confirmed mentions in this window.</p>
+<h2>Possible mentions (callsign or number heard alone)</h2>
+<p class="empty">None.</p>
+<h2>Archive blocks searched</h2>
+<p class="blocks">16:00 ET (2000Z) — download failed<br>16:30 ET (2030Z) — download failed</p>
+<footer>Generated Sep 08, 2026 20:06 ET. Audio &copy; LiveATC.net — for personal use.</footer>
 </body></html>
