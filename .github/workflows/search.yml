@@ -33,9 +33,9 @@ on:
         options: [tiny, base, small, medium]
         default: small
       archive_pattern:
-        description: "Archive URL pattern (see README to set this once)"
+        description: "Archive URL pattern"
         required: true
-        default: "https://archive.liveatc.net/kvrb/KVRB-Twr-{mon}-{dd}-{yyyy}-{hhmm}Z.mp3"
+        default: "https://archive.liveatc.net/kvrb/KVRB-Tower-{mon}-{dd}-{yyyy}-{hhmm}Z.mp3"
 
 permissions:
   contents: write
