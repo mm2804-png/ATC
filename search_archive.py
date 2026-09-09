@@ -16,6 +16,14 @@ import requests
 EASTERN = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
 
+BROWSER_HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/129.0.0.0 Safari/537.36"),
+    "Referer": "https://www.liveatc.net/",
+    "Accept": "*/*",
+}
+
 DIGIT_WORDS = {
     "0": ["zero", "oh", "o", "0"],
     "1": ["one", "won", "1"],
@@ -73,7 +81,7 @@ def block_url(pattern: str, t) -> str:
 def download(url: str, dest: Path) -> str:
     try:
         with requests.get(url, stream=True, timeout=60,
-                          headers={"User-Agent": "Mozilla/5.0"}) as r:
+                          headers=BROWSER_HEADERS) as r:
             if r.status_code == 404:
                 return "missing"
             r.raise_for_status()
